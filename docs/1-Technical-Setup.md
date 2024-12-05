@@ -57,7 +57,7 @@ go version
 
 ### Colima (Docker)
 
-Due do licencing restrictions, Docker Desktop cannot be installed on CapTech machines. As an
+Due to licencing restrictions, Docker Desktop cannot be installed on CapTech machines. As an
 alternative, we recommend using colima, a CLI based docker engine, instead.
 
 Colima and the docker engine can be installed with homebrew using the following commands:

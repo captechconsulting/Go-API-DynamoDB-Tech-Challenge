@@ -85,7 +85,7 @@ for our application then starting the application.
 The `internal/` folder contains internal packages that comprise the bulk of the application logic
 for the challenge:
 
-- `config` contains our application configuration
+- `configuration` contains our application configuration
 - `handlers` contains our http handlers which are the functions that execute when a request is sent
   to the application
 - `models` contains domain models for the application
@@ -173,21 +173,21 @@ func New() (Configuration, error) {
 	_ = godotenv.Load()
 	// Once values have been loaded into system env vars, parse those into our
 	// configuration struct and validate them returning any errors.
-	cfg, err := env.ParseAs[Config]()
+	cfg, err := env.ParseAs[Configuration]()
 	if err != nil {
-		return Config{}, fmt.Errorf("[in configuration.New] failed to parse configuration: %w", err)
+		return Configuration{}, fmt.Errorf("[in configuration.New] failed to parse configuration: %w", err)
 	}
 	 return cfg, nil
 }
 ```
 
 In the above code, we created a function called `New()` that is responsible for loading the
-environment variables from the `.env` file, validating them, and mapping them into our `Config`
+environment variables from the `.env` file, validating them, and mapping them into our `Configuration`
 struct. 
 
 The `New` naming convention is widely established in Go, and is used when we are returning an
-instance of an object from a package that shares the same name. Such as a `Config` object being
-returned from a `config` package.
+instance of an object from a package that shares the same name. Such as a `Configuration` object being
+returned from a `configuration` package.
 
 Note that we are using an underscore `_` to discard any possible errors from `godotenv.Load()` since we don't really care if there is an error and won't be handling the error if one was returned. Explicitly discarding errors when you don't want to handle them is considered a best practice as it signals to others that you meant to do this instead of just having forgotten to handle it.
 
@@ -198,12 +198,12 @@ file. One quirk of Go is that our `func main` can't return anything. Wouldn't it
 return an error or a status code from `main` to signal that a dependency failed to initialize? We're
 going to steal a pattern popularized by Matt Ryer to do exactly that.
 
-First, in `cmd/api/main.go` we're going to add the `run` function below the `main()` function definition. It should contain logic to call `config.New()` and initialize a logger. The `run()` function will be responsible for initializing all our dependencies and starting our application:
+First, in `cmd/api/main.go` we're going to add the `run` function below the `main()` function definition. It should contain logic to call `configuration.New()` and initialize a logger. The `run()` function will be responsible for initializing all our dependencies and starting our application:
 
 ```go
 func run(ctx context.Context, w io.Writer, args []string) error {
 	// Load and validate environment configuration
-	cfg, err := config.New()
+	cfg, err := configuration.New()
 	if err != nil {
 		return fmt.Errorf("[in main.run] failed to load configuration: %w", err)
 	}
@@ -295,7 +295,7 @@ Congrats! You have managed to connect to your DynamoDB instance from your applic
 
 ### Setting up our models
 
-Before we go any further, lets discuss DynamoDB and how it differs from a traditional SQL database. 
+Before we go any further, let's discuss DynamoDB and how it differs from a traditional SQL database. 
 DynamoDB is a NoSQL database, which means it doesn't use tables, rows, and columns like a traditional 
 SQL database. Instead, it uses tables, items, and attributes. An item is a single record in a table, 
 and an attribute is a single piece of data in an item.
@@ -318,7 +318,7 @@ With that context in mind, lets start creating our models.
 
 First, lets create a base struct that will hold some of the DynamoDB specific information that we 
 will need to interact with the database. In the `internal/models` package, create a new file called 
-`dynamodb_bas.go` and add the following code:
+`dynamodb_base.go` and add the following code:
 
 ```go
 package models
@@ -473,26 +473,26 @@ func (s *UsersService) CreateUser(ctx context.Context, user models.User) (models
 
 // ReadUser attempts to read a user from the database using the provided id. A
 // fully hydrated models.User or error is returned.
-func (s *UsersService) ReadUser(ctx context.Context, id uint64) (models.User, error) {
+func (s *UsersService) ReadUser(ctx context.Context, id uuid.UUID) (models.User, error) {
 	return models.User{}, nil
 }
 
 // UpdateUser attempts to perform an update of the user with the provided id,
 // updating, it to reflect the properties on the provided patch object. A
 // models.User or an error.
-func (s *UsersService) UpdateUser(ctx context.Context, id uint64, patch models.User) (models.User, error) {
+func (s *UsersService) UpdateUser(ctx context.Context, id uuid.UUID, patch models.User) (models.User, error) {
 	return models.User{}, nil
 }
 
 // DeleteUser attempts to delete the user with the provided id. An error is
 // returned if the delete fails.
-func (s *UsersService) DeleteUser(ctx context.Context, id uint64) error {
+func (s *UsersService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
 // ListUsers attempts to list all users in the database. A slice of models.User
 // or an error is returned.
-func (s *UsersService) ListUsers(ctx context.Context, id uint64) ([]models.User, error) {
+func (s *UsersService) ListUsers(ctx context.Context, id uuid.UUID) ([]models.User, error) {
 	return []models.User{}, nil
 }
 ```
@@ -573,7 +573,7 @@ similar methods:
 
 ---
 
-Now that you've implemented the `ReadUser` method, go through an implement the other CRUD methods on the service struct.
+Now that you've implemented the `ReadUser` method, go through and implement the other CRUD methods on the service struct.
 
 There are multiple ways that you can do this, and you have the freedom to approach this in the 
 way that you feel most comfortable with. With that being said, here are a couple of things to keep 
