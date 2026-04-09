@@ -43,6 +43,10 @@ stop-database:
 
 .PHONY: seed-database
 seed-database:
+	export AWS_ACCESS_KEY_ID="dummy"
+	export AWS_SECRET_ACCESS_KEY="dummy"
+	export AWS_REGION="us-east-1"
+
 	@$(MAKE) LOG MSG_TYPE=info LOG_MESSAGE="Seeding database..."
 	@cd ./dynamodb_seed && /bin/bash ./seed_dynamodb.sh
 
