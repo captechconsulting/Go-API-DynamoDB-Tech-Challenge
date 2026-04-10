@@ -1129,7 +1129,7 @@ func decodeValid[T validator](ctx context.Context, r *http.Request) (T, map[stri
 		return v, nil, fmt.Errorf("decode json: %w", err)
 	}
   
-	if problems := v.valid(ctx); len(problems) > 0 {
+	if problems := v.Valid(ctx); len(problems) > 0 {
 		return v, problems, fmt.Errorf("invalid %T: %d problems", v, len(problems))
 	}
   
